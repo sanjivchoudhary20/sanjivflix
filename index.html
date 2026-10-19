@@ -25,6 +25,10 @@
   color-scheme:dark;
 }
 *{box-sizing:border-box}
+/* Base reset so the page behaves the same on any host */
+[hidden]{display:none!important}
+body{margin:0}
+img,video{max-width:100%}
 html{scroll-behavior:smooth}
 body{background:var(--ink);color:var(--text);font-family:var(--f-body);font-size:1rem;line-height:1.55;overflow-x:hidden}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--ink)}
