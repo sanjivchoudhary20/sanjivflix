@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SanjivFlix</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="SanjivFlix: licensed movies of every genre, web-series clips and more on YouTube and Facebook.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: cinematic film-library home. Intro splash → hero with stats → featured slider → poster rows → genres → channels → mission → three pillars → big footer. */
+:root{
+  --ink:#111315;        /* page ground */
+  --panel:#1a1d21;      /* cards, rows */
+  --line:#2b3036;       /* hairlines */
+  --text:#f1ece2;       /* main text */
+  --muted:#9ba3aa;      /* secondary text */
+  --amber:#e9b44c;      /* brand accent */
+  --flare:#e3262f;      /* brand red, from the logo */
+  --f-display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --f-body:"Barlow","Helvetica Neue",Arial,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--ink);color:var(--text);font-family:var(--f-body);font-size:1rem;line-height:1.55;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--ink)}
+.in{max-width:1240px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:inherit}
+a:focus-visible,button:focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:6px}
+h1,h2,h3{font-family:var(--f-display);line-height:1;margin:0;text-wrap:balance;text-transform:uppercase;letter-spacing:.01em}
+.eyebrow{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;color:var(--amber)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:999px;font-weight:600;font-size:.95rem;text-decoration:none;border:1px solid var(--amber);cursor:pointer;font-family:var(--f-body)}
+.btn.solid{background:var(--flare);border-color:var(--flare);color:#fff}
+.btn.ghost{background:transparent;color:var(--text);border-color:color-mix(in srgb,var(--text) 40%,transparent)}
+.btn:hover{filter:brightness(1.08)}
+.logo-img{display:block;height:44px;width:auto;max-width:100%;mix-blend-mode:screen}
+.word{font-family:var(--f-display);font-weight:900;font-size:1.65rem;letter-spacing:.04em}
+.word span{color:transparent;-webkit-text-stroke:1.2px var(--amber)}
+
+/* Intro splash */
+#intro{position:fixed;inset:0;z-index:50;background:var(--ink);display:grid;place-items:center;transition:opacity .5s}
+#intro.out{opacity:0;pointer-events:none}
+#intro .logo{display:flex;align-items:center;gap:14px;animation:pop 1.1s ease-out both}
+#intro .logo .logo-img{height:clamp(70px,14vw,130px)}
+#intro{cursor:pointer;background:#000}
+#introVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000}
+@media (max-aspect-ratio:4/3){#introVideo{object-fit:contain}}
+#sound{position:absolute;z-index:2;top:calc(24px + env(safe-area-inset-top,0px));left:calc(20px + env(safe-area-inset-left,0px));background:color-mix(in srgb,var(--text) 10%,transparent);border:1px solid color-mix(in srgb,var(--text) 35%,transparent);color:var(--text);padding:12px 18px;min-height:44px;border-radius:999px;font:500 .85rem var(--f-mono);letter-spacing:.06em;cursor:pointer}
+#sound[aria-pressed="true"]{background:var(--flare);border-color:var(--flare)}
+#skip{position:absolute;z-index:2;top:calc(24px + env(safe-area-inset-top,0px));right:calc(20px + env(safe-area-inset-right,0px));background:color-mix(in srgb,var(--text) 10%,transparent);border:1px solid color-mix(in srgb,var(--text) 35%,transparent);color:var(--text);padding:12px 20px;min-height:44px;border-radius:999px;font:500 .85rem var(--f-mono);letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+#skip:hover{background:var(--flare);border-color:var(--flare)}
+@keyframes pop{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
+
+/* Header */
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--ink) 90%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:12px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.menu{display:flex;gap:26px;list-style:none;margin:0;padding:0}
+.menu a{text-decoration:none;color:var(--muted);font-weight:500}
+.menu a:hover{color:var(--text)}
+.navcta{display:flex;align-items:center;gap:10px}
+#burger{display:none;background:none;border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px 10px;cursor:pointer;font:500 .8rem var(--f-mono)}
+#mobile{border-top:1px solid var(--line)}
+#mobile ul{list-style:none;margin:0;padding:8px 0 16px;display:grid}
+#mobile a{display:block;padding:10px 0;text-decoration:none;font-weight:500}
+
+/* Hero */
+.hero{position:relative;padding-block:72px 40px;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:-20% -10% auto auto;width:70%;height:120%;z-index:-1;
+  background:radial-gradient(closest-side,color-mix(in srgb,var(--amber) 22%,transparent),transparent),radial-gradient(closest-side at 30% 70%,color-mix(in srgb,var(--flare) 18%,transparent),transparent)}
+.hero h1{font-size:clamp(2.3rem,4.6vw,4.2rem);font-weight:900;max-width:none;text-wrap:wrap}
+.hero h1 em{font-style:normal;color:var(--amber)}
+.hero p.sub{font-size:1.2rem;color:var(--muted);max-width:56ch;margin:20px 0 0}
+.hero .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin-top:56px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--line);gap:1px}
+.stat{background:var(--ink);padding:20px 22px;display:grid;gap:4px}
+.stat b{font-family:var(--f-display);font-weight:900;font-size:2.6rem;line-height:1;color:var(--text);font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:.9rem}
+
+/* Featured slider */
+.slider{position:relative;margin-top:24px}
+.slides{position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--line);min-height:420px}
+.slide{position:absolute;inset:0;display:grid;align-content:end;gap:14px;padding:clamp(24px,5vw,56px);opacity:0;transition:opacity .7s;
+  background:
+   linear-gradient(90deg,var(--ink) 0%,color-mix(in srgb,var(--ink) 70%,transparent) 45%,transparent 100%),
+   radial-gradient(60% 90% at 80% 40%,color-mix(in srgb,var(--tint) 55%,transparent),transparent 70%),
+   repeating-linear-gradient(115deg,color-mix(in srgb,var(--text) 3%,transparent) 0 2px,transparent 2px 9px),
+   var(--panel)}
+.slide.on{opacity:1;position:relative}
+.slide .big{position:absolute;right:4%;top:50%;transform:translateY(-50%);font-family:var(--f-display);font-weight:900;font-size:clamp(5rem,16vw,13rem);line-height:.8;color:color-mix(in srgb,var(--text) 7%,transparent);text-align:right;pointer-events:none}
+.tags{display:flex;gap:8px;flex-wrap:wrap}
+.tags span{font-size:.78rem;font-weight:600;padding:4px 10px;border-radius:999px;background:color-mix(in srgb,var(--text) 10%,transparent);color:var(--text)}
+.slide h2{font-size:clamp(2.6rem,6vw,4.8rem);font-weight:900;max-width:14ch}
+.slide h2 small{display:block;font-size:.45em;color:var(--amber);margin-top:6px}
+.slide p{color:var(--muted);max-width:48ch;margin:0;font-size:1.05rem}
+.slide .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.ctrls{display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:12px}
+.dots{display:flex;gap:8px}
+.dots button{width:28px;height:4px;border-radius:4px;border:0;background:var(--line);cursor:pointer;padding:0}
+.dots button[aria-current="true"]{background:var(--flare)}
+.arrows{display:flex;gap:8px}
+.arrows button{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--panel);color:var(--text);cursor:pointer;font-size:1.1rem}
+
+.slide-poster{position:absolute;right:5%;top:50%;transform:translateY(-50%);height:86%;aspect-ratio:2/3;max-width:100%;object-fit:cover;border-radius:12px;border:1px solid var(--line);box-shadow:0 24px 60px -20px #000}
+.slide>*:not(.slide-poster):not(.big){position:relative;z-index:1}
+.art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+@media (max-width:760px){.slide-poster{right:0;top:0;transform:none;height:100%;width:100%;border-radius:0;border:0;opacity:.28;box-shadow:none}}
+
+/* Rows */
+section{padding-block:48px}
+.rowhead{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.rowhead h2{font-size:clamp(1.9rem,4vw,2.8rem);font-weight:800}
+.rowhead a{color:var(--amber);text-decoration:none;font-weight:600;font-size:.95rem}
+.rail{display:grid;grid-auto-flow:column;grid-auto-columns:clamp(150px,18vw,200px);gap:16px;overflow-x:auto;padding-bottom:12px;scroll-snap-type:x mandatory;scrollbar-width:thin}
+.poster{scroll-snap-align:start;display:grid;gap:10px;text-decoration:none}
+.art{position:relative;aspect-ratio:2/3;max-width:100%;border-radius:12px;overflow:hidden;border:1px solid var(--line);display:grid;align-content:end;padding:14px;
+  background:
+   linear-gradient(180deg,transparent 35%,color-mix(in srgb,var(--ink) 92%,transparent)),
+   radial-gradient(80% 60% at 50% 30%,color-mix(in srgb,var(--tint) 60%,transparent),transparent 75%),
+   var(--panel);transition:transform .25s}
+.poster:hover .art{transform:translateY(-4px)}
+.art .badge{position:absolute;z-index:1;top:10px;left:10px;font:500 .64rem var(--f-mono);letter-spacing:.1em;text-transform:uppercase;background:var(--amber);color:var(--ink);padding:3px 6px;border-radius:4px}
+.art h3{font-size:1.7rem;font-weight:900;line-height:.95}
+.art h3 small{display:block;font-size:.55em;color:var(--amber);margin-top:4px}
+.art.soon{background:repeating-linear-gradient(135deg,var(--panel) 0 12px,color-mix(in srgb,var(--panel) 80%,var(--ink)) 12px 24px);border-style:dashed}
+.art.soon h3{color:var(--muted);font-size:1.3rem}
+.poster .cap{font-weight:600;font-size:.95rem}
+.poster .cap span{display:block;color:var(--muted);font-weight:400;font-size:.85rem}
+
+/* Genres */
+.genres{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.genre{position:relative;min-height:180px;border-radius:14px;overflow:hidden;border:1px solid var(--line);padding:20px;display:grid;align-content:end;gap:6px;text-decoration:none;
+  background:linear-gradient(160deg,color-mix(in srgb,var(--tint) 45%,var(--panel)),var(--panel) 70%);transition:border-color .2s}
+.genre:hover{border-color:var(--amber)}
+.genre h3{font-size:2rem;font-weight:900}
+.genre p{margin:0;color:var(--muted);font-size:.92rem}
+
+/* Channels */
+.channels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.chan{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:24px;border-radius:14px;background:var(--panel);border:1px solid var(--line);text-decoration:none;transition:border-color .2s}
+.chan:hover{border-color:var(--amber)}
+.chan strong{font-family:var(--f-display);font-weight:900;font-size:2rem;text-transform:uppercase}
+.chan span{color:var(--muted)}
+.chan em{font-style:normal;color:var(--amber);font-weight:600;white-space:nowrap}
+
+/* Mission + pillars */
+.mission{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center;padding:clamp(28px,5vw,56px);border-radius:18px;border:1px solid var(--line);
+  background:radial-gradient(70% 100% at 100% 0%,color-mix(in srgb,var(--amber) 16%,transparent),transparent 70%),var(--panel)}
+.mission>*{min-width:0}
+.mission h2{font-size:clamp(2.2rem,5vw,3.8rem);font-weight:900;margin-top:10px}
+.mission p{color:var(--muted);font-size:1.08rem;margin:0}
+.mission .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+.pillars{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:20px}
+.pillar{padding:24px;border-radius:14px;border:1px solid var(--line);background:var(--ink);display:grid;gap:8px}
+.pillar b{font:500 .78rem var(--f-mono);letter-spacing:.14em;color:var(--amber)}
+.pillar h3{font-size:1.7rem;font-weight:800}
+.pillar p{margin:0;color:var(--muted);font-size:.95rem}
+
+/* Footer */
+footer{border-top:1px solid var(--line);margin-top:40px;padding-block:48px 32px}
+.fgrid{display:grid;grid-template-columns:1.4fr repeat(3,minmax(0,1fr));gap:32px}
+.fgrid>*{min-width:0}
+.fgrid p{color:var(--muted);max-width:36ch;font-size:.95rem}
+.fgrid h4{font:500 .76rem var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin:0 0 12px}
+.fgrid ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.fgrid ul a{text-decoration:none;color:var(--muted)}
+.fgrid ul a:hover{color:var(--text)}
+.social{display:flex;gap:10px;margin-top:14px}
+.social a{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;text-decoration:none}
+.social a:hover{border-color:var(--amber)}
+.social svg{width:18px;height:18px;fill:var(--text)}
+#contactDlg{width:min(460px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;padding:0;border:1px solid var(--line);border-radius:18px;background:var(--panel);color:var(--text);box-shadow:0 40px 100px -30px #000}
+#contactDlg::backdrop{background:color-mix(in srgb,#000 70%,transparent);backdrop-filter:blur(4px)}
+#contactDlg[open]{animation:dlg .25s ease-out}
+@keyframes dlg{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
+.dlg-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 18px 0 22px}
+.dlg-head .logo-img{height:38px}
+#dlgClose{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--text);font-size:1.3rem;cursor:pointer;line-height:1}
+#dlgClose:hover{border-color:var(--flare)}
+.dlg-body{padding:18px 22px 24px;display:grid;gap:16px}
+.dlg-body h2{font-size:2.2rem;font-weight:900}
+.dlg-body>p{margin:0;color:var(--muted)}
+.dlg-row{display:grid;gap:4px;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--ink)}
+.dlg-row span{font:500 .72rem var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--amber)}
+.dlg-row a,.dlg-row b{font-weight:600;font-size:1.08rem;color:var(--text);text-decoration:none;overflow-wrap:anywhere}
+.dlg-row a:hover{color:var(--amber)}
+.mailrow{user-select:all}
+.dlg-acts{display:flex;gap:10px;flex-wrap:wrap}
+.dlg-acts .btn{flex:1 1 auto;justify-content:center}
+#copyMail[data-done]{background:var(--amber);border-color:var(--amber);color:var(--ink)}
+.legal{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);margin-top:36px;padding-top:20px;color:var(--muted);font-size:.85rem}
+
+@media (max-width:960px){
+  .menu,.navcta .btn{display:none}
+  #burger{display:inline-block}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .genres{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .mission{grid-template-columns:1fr}
+  .pillars{grid-template-columns:1fr}
+  .fgrid{grid-template-columns:1fr 1fr}
+}
+@media (max-width:560px){
+  .channels,.genres{grid-template-columns:1fr}
+  .fgrid{grid-template-columns:1fr}
+  .slides{min-height:460px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+}
+</style>
+</head>
+<body>
+<div id="intro" hidden>
+  <video id="introVideo" poster="intro-poster.jpg" muted playsinline preload="auto" aria-label="SanjivFlix intro"><source src="intro.mp4" type="video/mp4"><source src="intro.webm" type="video/webm"></video>
+  <div class="logo" id="introFallback" hidden><img class="logo-img" src="logo.jpg" alt="SanjivFlix"></div>
+  <button id="sound" type="button" aria-pressed="false">🔊 Sound on</button>
+  <button id="skip" type="button">Skip intro</button>
+</div>
+
+<header>
+  <div class="in nav">
+    <a class="brand" href="#top" aria-label="SanjivFlix home"><img class="logo-img" src="logo.jpg" alt="SanjivFlix"></a>
+    <nav aria-label="Main">
+      <ul class="menu">
+        <li><a href="#top">Home</a></li>
+        <li><a href="#catalogue">Catalogue</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#genres">Genres</a></li>
+        <li><a href="#channels">Channels</a></li>
+      </ul>
+    </nav>
+    <div class="navcta">
+      <a class="btn solid" href="#contact" data-contact>Contact</a>
+      <button id="burger" type="button" aria-expanded="false" aria-controls="mobile">Menu</button>
+    </div>
+  </div>
+  <div id="mobile" hidden>
+    <ul class="in">
+      <li><a href="#top">Home</a></li>
+      <li><a href="#catalogue">Catalogue</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#genres">Genres</a></li>
+      <li><a href="#channels">Channels</a></li>
+      <li><a href="#contact" data-contact>Contact</a></li>
+    </ul>
+  </div>
+</header>
+
+<main id="top">
+  <div class="hero">
+    <div class="in">
+      <p class="eyebrow">Licensed distribution · Movies · Web series · Clips</p>
+      <h1>Every kind of movie, <em>all in one place.</em></h1>
+      <p class="sub">SanjivFlix is a licensed digital distribution platform and creator, bringing movies of every genre, web-series clips, comedy and promotional videos to viewers on YouTube and Facebook.</p>
+      <div class="actions">
+        <a class="btn solid" href="https://www.youtube.com/@SanjivFlix" target="_blank" rel="noopener">▶ Watch on YouTube</a>
+        <a class="btn ghost" href="#catalogue">Explore catalogue</a>
+      </div>
+
+      <div class="stats" aria-label="SanjivFlix by the numbers">
+        <div class="stat"><b>100%</b><span>Licensed content</span></div>
+        <div class="stat"><b>2</b><span>Platforms: YouTube &amp; Facebook</span></div>
+        <div class="stat"><b>All</b><span>Genres, one channel</span></div>
+        <div class="stat"><b>Free</b><span>To watch, always</span></div>
+      </div>
+
+      <div class="slider" aria-roledescription="carousel" aria-label="Featured on SanjivFlix">
+        <div class="slides">
+          <article class="slide on" style="--tint:#d0594a" aria-roledescription="slide" aria-label="1 of 3">
+            <img class="slide-poster" src="shiv-prakash-shukla.jpg" alt="Shiv Prakash Shukla poster">
+            <div class="tags"><span>Crime</span><span>Thriller</span><span>Original</span></div>
+            <h2>Shiv Prakash Shukla<small>A Sanjiv Flicks Original</small></h2>
+            <p>A crime thriller and a Sanjiv Flicks Original, streaming now on SanjivFlix.</p>
+            <div class="actions"><a class="btn solid" href="https://www.youtube.com/@SanjivFlix" target="_blank" rel="noopener">▶ Watch now</a><a class="btn ghost" href="#catalogue">More info</a></div>
+          </article>
+          <article class="slide" style="--tint:#8c9bd6" aria-roledescription="slide" aria-label="2 of 3">
+            <img class="slide-poster" src="haiwaan.jpg" alt="Haiwaan poster">
+            <div class="tags"><span>Crime</span><span>Thriller</span><span>Full movie</span></div>
+            <h2>Haiwaan</h2>
+            <p>A gripping crime thriller, now streaming on SanjivFlix.</p>
+            <div class="actions"><a class="btn solid" href="https://www.youtube.com/@SanjivFlix" target="_blank" rel="noopener">▶ Watch now</a><a class="btn ghost" href="#catalogue">More info</a></div>
+          </article>
+          <article class="slide" style="--tint:#7fb8a4" aria-roledescription="slide" aria-label="3 of 3">
+            <div class="big" aria-hidden="true">MISSION</div>
+            <div class="tags"><span>Military</span><span>Espionage</span><span>Clips</span></div>
+            <h2>Military &amp; spy missions</h2>
+            <p>Army operations, undercover agents and chase sequences, cut into clips you can watch in minutes.</p>
+            <div class="actions"><a class="btn solid" href="https://www.youtube.com/@SanjivFlix" target="_blank" rel="noopener">▶ Watch now</a><a class="btn ghost" href="#genres">More info</a></div>
+          </article>
+        </div>
+        <div class="ctrls">
+          <div class="dots" role="group" aria-label="Choose slide"></div>
+          <div class="arrows"><button type="button" id="prev" aria-label="Previous slide">‹</button><button type="button" id="next" aria-label="Next slide">›</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section id="catalogue">
+    <div class="in">
+      <div class="rowhead"><h2>Latest releases</h2><a href="https://www.youtube.com/@SanjivFlix" target="_blank" rel="noopener">See all on YouTube →</a></div>
+      <div class="rail" id="latest"></div>
+    </div>
+  </section>
+
+  <section id="trending">
+    <div class="in">
+      <div class="rowhead"><h2>Top action &amp; thrillers</h2><a href="https://www.youtube.com/@SanjivFlix" target="_blank" rel="noopener">See all →</a></div>
+      <div class="rail" id="crime"></div>
+    </div>
+  </section>
+
+  <section id="military">
+    <div class="in">
+      <div class="rowhead"><h2>Military &amp; spy</h2><a href="https://www.youtube.com/@SanjivFlix" target="_blank" rel="noopener">See all →</a></div>
+      <div class="rail" id="spy"></div>
+    </div>
+  </section>
+
+  <section id="genres">
+    <div class="in">
+      <div class="rowhead"><h2>Browse by genre</h2></div>
+      <div class="genres">
+        <a class="genre" style="--tint:#d0594a" href="https://www.youtube.com/@SanjivFlix" target="_blank" rel="noopener"><h3>Action</h3><p>Fights, chases and big-screen heroes.</p></a>
+        <a class="genre" style="--tint:#8c9bd6" href="https://www.youtube.com/@SanjivFlix" target="_blank" rel="noopener"><h3>Thriller</h3><p>Crime, mystery and edge-of-your-seat suspense.</p></a>
+        <a class="genre" style="--tint:#c98a5a" href="https://www.youtube.com/@SanjivFlix" target="_blank" rel="noopener"><h3>Drama</h3><p>Family stories and powerful performances.</p></a>
+        <a class="genre" style="--tint:#e9b44c" href="https://www.youtube.com/@SanjivFlix" target="_blank" rel="noopener"><h3>Comedy</h3><p>Full comedies and the funniest scenes.</p></a>
+        <a class="genre" style="--tint:#d77a9a" href="https://www.youtube.com/@SanjivFlix" target="_blank" rel="noopener"><h3>Romance</h3><p>Love stories to watch again and again.</p></a>
+        <a class="genre" style="--tint:#6f7f8f" href="https://www.youtube.com/@SanjivFlix" target="_blank" rel="noopener"><h3>Horror</h3><p>Ghosts, curses and late-night scares.</p></a>
+        <a class="genre" style="--tint:#7fb8a4" href="https://www.youtube.com/@SanjivFlix" target="_blank" rel="noopener"><h3>Military &amp; spy</h3><p>Army missions and espionage.</p></a>
+        <a class="genre" style="--tint:#9fb86c" href="https://www.youtube.com/@SanjivFlix" target="_blank" rel="noopener"><h3>Family</h3><p>Movies the whole family can enjoy.</p></a>
+      </div>
+    </div>
+  </section>
+
+  <section id="channels">
+    <div class="in">
+      <div class="rowhead"><h2>Discover our channels</h2><p style="color:var(--muted);margin:0">Watch free. Subscribe for every new upload.</p></div>
+      <div class="channels">
+        <a class="chan" href="https://www.youtube.com/@SanjivFlix" target="_blank" rel="noopener"><div><strong>YouTube</strong><br><span>Full movies, thrillers and clips</span></div><em>@SanjivFlix →</em></a>
+        <a class="chan" href="https://www.facebook.com/@SanjivFlix" target="_blank" rel="noopener"><div><strong>Facebook</strong><br><span>Clips, action scenes and comedy</span></div><em>@SanjivFlix →</em></a>
+      </div>
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="in">
+      <div class="mission">
+        <div>
+          <p class="eyebrow">SanjivFlix · Licensed distribution</p>
+          <h2>Bringing great movies to every viewer</h2>
+        </div>
+        <div>
+          <p>We show films, web-series clips, action thrillers and promotional videos through authorized distribution and licensing agreements. Every title on our channels is fully legal and fully licensed.</p>
+          <div class="actions"><a class="btn solid" href="#catalogue">Explore catalogue</a><a class="btn ghost" href="#contact" data-contact>Work with us</a></div>
+        </div>
+      </div>
+      <div class="pillars">
+        <div class="pillar"><b>01</b><h3>Content library</h3><p>Movies of every genre, from action and drama to comedy, romance and thrillers, plus web-series clips.</p></div>
+        <div class="pillar"><b>02</b><h3>Licensed distribution</h3><p>Every film and clip is shown under authorized distribution and licensing agreements.</p></div>
+        <div class="pillar"><b>03</b><h3>Partnerships</h3><p>We work with producers and rights holders to bring their films to a wider Hindi audience.</p></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer id="contact">
+  <div class="in">
+    <div class="fgrid">
+      <div>
+        <a class="brand" href="#top" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none"><img class="logo-img" src="logo.jpg" alt="SanjivFlix"></a>
+        <p>Licensed digital distribution platform and creator for movies, web series and clips of every genre. For licensing and partnership enquiries, tap Contact.</p>
+        <div class="social">
+          <a href="https://www.youtube.com/@SanjivFlix" target="_blank" rel="noopener" aria-label="YouTube"><svg viewBox="0 0 24 24"><path d="M23 7.2a3 3 0 0 0-2.1-2.1C19 4.6 12 4.6 12 4.6s-7 0-8.9.5A3 3 0 0 0 1 7.2 31 31 0 0 0 .5 12 31 31 0 0 0 1 16.8a3 3 0 0 0 2.1 2.1c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.1 31 31 0 0 0 .5-4.8 31 31 0 0 0-.5-4.8zM9.7 15.1V8.9l5.8 3.1-5.8 3.1z"/></svg></a>
+          <a href="https://www.facebook.com/@SanjivFlix" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M14 8V6.2c0-.8.2-1.2 1.4-1.2H17V2h-2.6C11.3 2 10 3.5 10 6v2H8v3h2v11h4V11h2.7l.3-3H14z"/></svg></a>
+        </div>
+      </div>
+      <div><h4>Company</h4><ul><li><a href="#about">About us</a></li><li><a href="#about">Licensing</a></li><li><a href="#contact" data-contact>Contact</a></li></ul></div>
+      <div><h4>Explore</h4><ul><li><a href="#catalogue">Latest releases</a></li><li><a href="#trending">Action &amp; thrillers</a></li><li><a href="#military">Military &amp; spy</a></li><li><a href="#genres">Genres</a></li><li><a href="#channels">Our channels</a></li></ul></div>
+      <div><h4>Watch</h4><ul><li><a href="https://www.youtube.com/@SanjivFlix" target="_blank" rel="noopener">YouTube</a></li><li><a href="https://www.facebook.com/@SanjivFlix" target="_blank" rel="noopener">Facebook</a></li></ul></div>
+    </div>
+    <div class="legal"><span>© 2026 SanjivFlix. All rights reserved.</span><span>All content shown under authorized licensing agreements.</span></div>
+  </div>
+</footer>
+
+<dialog id="contactDlg" aria-labelledby="dlgTitle">
+  <div class="dlg-head"><img class="logo-img" src="logo.jpg" alt="SanjivFlix"><button id="dlgClose" type="button" aria-label="Close">×</button></div>
+  <div class="dlg-body">
+    <h2 id="dlgTitle">Contact us</h2>
+    <p>For business, licensing and partnership enquiries, reach SanjivFlix here.</p>
+    <div class="dlg-row"><span>Email</span><a class="mailrow" id="dlgMail" href="mailto:sanjivflix.partner@gmail.com">sanjivflix.partner@gmail.com</a></div>
+    <div class="dlg-row"><span>YouTube</span><a href="https://www.youtube.com/@SanjivFlix" target="_blank" rel="noopener">@SanjivFlix</a></div>
+    <div class="dlg-row"><span>Facebook</span><a href="https://www.facebook.com/@SanjivFlix" target="_blank" rel="noopener">@SanjivFlix</a></div>
+    <div class="dlg-acts">
+      <a class="btn solid" href="mailto:sanjivflix.partner@gmail.com?subject=SanjivFlix%20enquiry">✉ Email us</a>
+      <button class="btn ghost" id="copyMail" type="button">Copy email</button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+/* ===== EDIT YOUR CATALOGUE HERE =====
+   Add a title: { t:"Movie name", s:"Subtitle (optional)", g:"Genre", tint:"#hex", url:"YouTube video link" }
+   Slots with soon:true show as "Coming soon" until you replace them. */
+const CHANNEL = "https://www.youtube.com/@SanjivFlix";
+const M = {
+  jailer2:   { t:"Jailer 2", g:"Action", img:"jailer-2.jpg" },
+  paradise:  { t:"The Paradise", g:"Action drama", img:"the-paradise.jpg" },
+  leo:       { t:"Leo", g:"Action thriller", img:"leo.jpg" },
+  ghamasaan: { t:"Ghamasaan", g:"Action", img:"ghamasaan.jpg" },
+  abhay3:    { t:"Abhay 3", g:"Crime thriller", img:"abhay-3.jpg" },
+  jailer:    { t:"Rajini The Jailer", g:"Action", img:"rajini-the-jailer.jpg" },
+  mukhbir:   { t:"Mukhbir", s:"The Story of a Spy", g:"Spy thriller", img:"mukhbir.jpg" },
+  jeet:      { t:"Jeet Ki Zid", s:"The Movie", g:"Military drama", img:"jeet-ki-zid.jpg" },
+  sps:       { t:"Shiv Prakash Shukla", g:"Crime thriller · Original", img:"shiv-prakash-shukla.jpg" },
+  haiwaan:   { t:"Haiwaan", g:"Crime thriller", img:"haiwaan.jpg" }
+};
+const LATEST = [M.jailer2, M.paradise, M.leo, M.ghamasaan, M.abhay3, M.sps, M.haiwaan];
+const CRIME  = [M.jailer, M.leo, M.abhay3, M.haiwaan, M.sps, M.ghamasaan, M.paradise];
+const SPY    = [M.mukhbir, M.jeet, M.ghamasaan, M.jailer2];
+
+function esc(x){return String(x??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function card(m){
+  if(m.soon) return `<div class="poster"><div class="art soon"><h3>Coming soon</h3></div><div class="cap">New title<span>Movie</span></div></div>`;
+  return `<a class="poster" href="${esc(m.url||CHANNEL)}" target="_blank" rel="noopener">
+    <div class="art" style="--tint:${esc(m.tint||"#e9b44c")}">${m.img?`<img src="${esc(m.img)}" alt="${esc(m.t)} poster" loading="lazy">`:`<h3>${esc(m.t)}${m.s?`<small>${esc(m.s)}</small>`:""}</h3>`}<span class="badge">Movie</span></div>
+    <div class="cap">${esc(m.t)}<span>${esc(m.g)}</span></div></a>`;
+}
+document.getElementById("latest").innerHTML = LATEST.map(card).join("");
+document.getElementById("crime").innerHTML = CRIME.map(card).join("");
+document.getElementById("spy").innerHTML = SPY.map(card).join("");
+
+/* Slider */
+const slides=[...document.querySelectorAll(".slide")], dots=document.querySelector(".dots");
+let cur=0, timer;
+slides.forEach((_,i)=>{const b=document.createElement("button");b.type="button";b.setAttribute("aria-label","Slide "+(i+1));b.onclick=()=>go(i,true);dots.appendChild(b)});
+function go(i,user){
+  slides[cur].classList.remove("on");cur=(i+slides.length)%slides.length;slides[cur].classList.add("on");
+  [...dots.children].forEach((d,j)=>d.setAttribute("aria-current",j===cur?"true":"false"));
+  if(user) start();
+}
+const still=matchMedia("(prefers-reduced-motion: reduce)").matches;
+function start(){clearInterval(timer);if(!still) timer=setInterval(()=>go(cur+1),6000)}
+document.getElementById("prev").onclick=()=>go(cur-1,true);
+document.getElementById("next").onclick=()=>go(cur+1,true);
+go(0);start();
+
+/* Contact popup */
+const dlg=document.getElementById("contactDlg");
+function openContact(e){
+  if(e) e.preventDefault();
+  if(typeof dlg.showModal==="function"){ if(!dlg.open) dlg.showModal(); }
+  else dlg.setAttribute("open","");
+}
+document.querySelectorAll("[data-contact]").forEach(a=>a.addEventListener("click",openContact));
+document.getElementById("dlgClose").addEventListener("click",()=>dlg.close?dlg.close():dlg.removeAttribute("open"));
+dlg.addEventListener("click",e=>{ if(e.target===dlg) dlg.close(); }); /* tap outside the box closes it */
+if(location.hash==="#contact") openContact();
+
+/* Copy email */
+document.getElementById("copyMail").addEventListener("click",e=>{
+  const b=e.currentTarget, mail="sanjivflix.partner@gmail.com";
+  const ok=()=>{b.textContent="Copied ✓";b.dataset.done="1";setTimeout(()=>{b.textContent="Copy email";delete b.dataset.done},2000)};
+  const fallback=()=>{const r=document.createRange();r.selectNodeContents(document.getElementById("dlgMail"));const sel=getSelection();sel.removeAllRanges();sel.addRange(r);b.textContent="Selected, press Ctrl+C"};
+  try{navigator.clipboard.writeText(mail).then(ok,fallback)}catch(err){fallback()}
+});
+
+/* Mobile menu */
+const burger=document.getElementById("burger"), mob=document.getElementById("mobile");
+burger.onclick=()=>{mob.hidden=!mob.hidden;burger.setAttribute("aria-expanded",String(!mob.hidden))};
+mob.addEventListener("click",e=>{if(e.target.closest("a")){mob.hidden=true;burger.setAttribute("aria-expanded","false")}});
+
+/* Intro video: once per visit, skippable, muted until the viewer turns sound on */
+(function(){
+  const intro=document.getElementById("intro"), vid=document.getElementById("introVideo"),
+        snd=document.getElementById("sound"), fb=document.getElementById("introFallback");
+  let seen=false;
+  try{seen=sessionStorage.getItem("sf-intro")==="1";sessionStorage.setItem("sf-intro","1")}catch(e){}
+  if(seen||still) return;
+  intro.hidden=false;
+  let done=false, timer;
+  const close=()=>{if(done)return;done=true;clearTimeout(timer);intro.classList.add("out");
+    setTimeout(()=>{intro.hidden=true;try{vid.pause()}catch(e){}},450)};
+  const fallback=()=>{vid.hidden=true;snd.hidden=true;fb.hidden=false;clearTimeout(timer);timer=setTimeout(close,2000)};
+  /* Sound button turns audio on without closing the intro */
+  snd.addEventListener("click",e=>{e.stopPropagation();vid.muted=!vid.muted;snd.setAttribute("aria-pressed",String(!vid.muted));snd.textContent=vid.muted?"🔊 Sound on":"🔇 Sound off";if(vid.paused)vid.play().catch(()=>{})});
+  snd.addEventListener("pointerdown",e=>e.stopPropagation());
+  /* Skip button, a tap anywhere else, or Esc closes it */
+  intro.addEventListener("click",close);
+  document.getElementById("skip").addEventListener("click",e=>{e.stopPropagation();close()});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape")close()});
+  vid.addEventListener("ended",close);
+  vid.addEventListener("error",fallback);
+  const srcs=vid.querySelectorAll("source"); srcs[srcs.length-1].addEventListener("error",fallback);
+  const p=vid.play(); if(p&&p.catch) p.catch(fallback);
+  timer=setTimeout(close,10000); /* safety net: the video is 8 seconds */
+})();
+</script>
+</body>
+</html>
